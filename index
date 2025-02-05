@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Feedback Generator</title>
+    <script>
+        async function generateFeedback() {
+            let observationNotes = document.getElementById("observation_notes").value;
+            let strengths = document.getElementById("strengths").value;
+            let areasForImprovement = document.getElementById("areas_for_improvement").value;
+            
+            let prompt = `You are an assistant principal evaluating teacher performance. Based on the following notes, generate professional, personalized, and constructive feedback:\n\nObservation Notes:\n${observationNotes}\n\nStrengths:\n${strengths}\n\nAreas for Improvement:\n${areasForImprovement}\n\nProvide a structured response that includes:\n- Positive reinforcement of strengths\n- Specific constructive feedback for improvement\n- Actionable next steps for growth`;
+            
+            let response = await fetch("https://api.openai.com/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer YOUR_OPENAI_API_KEY"
+                },
+                body: JSON.stringify({
+                    model: "gpt-4",
+                    messages: [{ "role": "system", "content": "You are an expert in teacher evaluations." },
+                               { "role": "user", "content": prompt }],
+                    temperature: 0.7
+                })
+            });
+            
+            let data = await response.json();
+            document.getElementById("feedback").innerText = data.choices ? data.choices[0].message.content : "Error: No response received.";
+        }
+    </script>
+</head>
+<body>
+    <h2>Teacher Feedback Generator</h2>
+    <label for="observation_notes">Observation Notes:</label><br>
+    <textarea id="observation_notes" rows="4" cols="50"></textarea><br>
+    <label for="strengths">Strengths:</label><br>
+    <textarea id="strengths" rows="2" cols="50"></textarea><br>
+    <label for="areas_for_improvement">Areas for Improvement:</label><br>
+    <textarea id="areas_for_improvement" rows="2" cols="50"></textarea><br>
+    <button onclick="generateFeedback()">Generate Feedback</button>
+    <h3>Generated Feedback:</h3>
+    <p id="feedback"></p>
+</body>
+</html>
